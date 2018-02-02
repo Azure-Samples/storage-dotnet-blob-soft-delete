@@ -1,13 +1,6 @@
-## [project-title] Changelog
+## Storage .NET Blob Soft Delete Changelog
 
 <a name="x.y.z"></a>
-# x.y.z (yyyy-mm-dd)
+# 1.0.0 (2018-02-02)
 
-*Features*
-* ...
-
-*Bug Fixes*
-* ...
-
-*Breaking Changes*
-* ...
+Initial version
