@@ -1,4 +1,4 @@
-# Project Name
+# Azure Storage Blob Soft Delete
 
 This project uploads, overwrites, snapshots, deletes, and restores a blob named “HelloWorld” when soft delete is turned on. It also includes two PowerShell scripts to demonstrate soft delete functionalities.
 
