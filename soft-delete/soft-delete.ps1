@@ -16,7 +16,7 @@ Get-AzureStorageServiceProperty -ServiceType "Blob" -context $ctx
 $Blobs = Get-AzureStorageBlob -Container $StorageContainerName -Context $ctx -IncludeDeleted
 $Blobs
 
-# Observe the next properties for soft deleted data
+# Observe the new properties for soft deleted data
 $Blobs.ICloudBlob.Properties
 
 # Undelete the blobs in the container and show their properties
