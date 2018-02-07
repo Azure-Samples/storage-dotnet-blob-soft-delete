@@ -49,8 +49,8 @@ namespace soft_delete
             try
             {
                 ServiceProperties serviceProperties = blobClient.GetServiceProperties();
-                serviceProperties.DeleteRetentionProperties.Enabled = true;
-                serviceProperties.DeleteRetentionProperties.Days = RetentionDays;
+                serviceProperties.DeleteRetentionPolicy.Enabled = true;
+                serviceProperties.DeleteRetentionPolicy.RetentionDays = RetentionDays;
                 blobClient.SetServiceProperties(serviceProperties);
             }
             catch (StorageException ex)
