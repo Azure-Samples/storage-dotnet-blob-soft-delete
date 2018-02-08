@@ -30,7 +30,7 @@ namespace soft_delete
     {
         const string ImageToUpload = "../../HelloWorld.png";
         const string TextToUpload = "../../HelloWorld.txt";
-        const int RetentionDays = 7;
+        const int RetentionDays = 14;
 
         static void Main(string[] args)
         {
