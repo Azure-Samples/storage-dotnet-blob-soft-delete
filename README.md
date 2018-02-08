@@ -12,7 +12,6 @@ This project framework provides the following features:
 
 ### Prerequisites
 
-- Azure Storage client library version 9.0.0 or later
 - .NET Framework
 
 ### Running this sample
@@ -27,6 +26,8 @@ To run the sample using a storage account
 1. Open the app.config file and comment out the connection string for the emulator (UseDevelopmentStorage=True) and uncomment the connection string for the storage service (AccountName=[]...)
 2. Create a storage account through the Azure Portal and provide your [AccountName] and [AccountKey] in the App.Config file. See https://docs.microsoft.com/en-us/azure/storage/common/storage-create-storage-accountfor more information
 3. Set breakpoints and run the project using F10.
+
+**Currently the storage emulator does not support soft delete. You will need to run the sample using a storage account**
 
 
 ## Demo

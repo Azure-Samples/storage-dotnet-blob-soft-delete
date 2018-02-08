@@ -28,8 +28,8 @@ namespace soft_delete
 
     public class Program
     {
-        const string ImageToUpload = "HelloWorld.png";
-        const string TextToUpload = "HelloWorld.txt";
+        const string ImageToUpload = "../../HelloWorld.png";
+        const string TextToUpload = "../../HelloWorld.txt";
         const int RetentionDays = 7;
 
         static void Main(string[] args)
