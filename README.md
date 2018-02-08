@@ -1,6 +1,6 @@
 # Azure Storage Blob Soft Delete
 
-This project uploads, overwrites, snapshots, deletes, and restores a blob named “HelloWorld” when soft delete is turned on. It also includes two PowerShell scripts to demonstrate soft delete functionalities.
+This project uploads, overwrites, snapshots, deletes, and restores a blob named “HelloWorld” when soft delete is turned on.
 
 ## Features
 
@@ -23,11 +23,14 @@ To run the sample using the storage emulator (default option):
 2. Set breakpoints and run the project using F10.
 
 To run the sample using a storage account
-1. Open the app.config file and comment out the connection string for the emulator (UseDevelopmentStorage=True) and uncomment the connection string for the storage service (AccountName=[]...)
-2. Create a storage account through the Azure Portal and provide your [AccountName] and [AccountKey] in the App.Config file. See https://docs.microsoft.com/en-us/azure/storage/common/storage-create-storage-accountfor more information
+1. Create a storage account through the Azure Portal
+2. Open the app.config file and change the value of the "StorageConnectionString" key (currently "UseDevelopmentStorage=True;") to the connection string for your storage account.
+ https://docs.microsoft.com/en-us/azure/storage/common/storage-create-storage-account for more information
 3. Set breakpoints and run the project using F10.
 
 **Currently the storage emulator does not support soft delete. You will need to run the sample using a storage account**
+
+The sample is configured to clean up resources after running. If you'd like to inspect the results, set breakpoints or comment
 
 
 ## Demo

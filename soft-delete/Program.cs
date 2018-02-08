@@ -119,9 +119,13 @@ namespace soft_delete
                 Console.WriteLine(ex.Message);
             }
 
-            // Delete the container
-            // Uncomment the line below to clean up resources at the end of this demo
-            // await container.DeleteIfExistsAsync();
+            Console.WriteLine("\nDone.\n\nEnter 'd' to cleanup resources. Enter any other key to leave the container intact.");
+            String cleanup = Console.ReadLine();
+            if (cleanup == "d")
+            {
+                await container.DeleteIfExistsAsync();
+                Console.WriteLine("\nContainer deleted.");
+            }
         }
 
         // Helper method to retrieve retrieve the CloudBlobClient object in order to interact with the storage account.
