@@ -35,7 +35,7 @@ namespace soft_delete
         static void Main(string[] args)
         {
             Console.WriteLine("Testing soft delete");
-            SoftDeleteTest().Wait();
+            SoftDeleteTest().GetAwaiter().GetResult();
 
             Console.WriteLine("\nPress any key to exit");
             Console.ReadLine();
@@ -119,12 +119,26 @@ namespace soft_delete
                 Console.WriteLine(ex.Message);
             }
 
-            Console.WriteLine("\nDone.\n\nEnter 'd' to cleanup resources. Enter any other key to leave the container intact.");
+            Console.WriteLine("\nDone.\n\nEnter 'd' to cleanup resources. Doing so will also turn off the soft delete feature. Enter any other key to leave the container intact.");
             String cleanup = Console.ReadLine();
             if (cleanup == "d")
             {
-                await container.DeleteIfExistsAsync();
-                Console.WriteLine("\nContainer deleted.");
+                try
+                {
+                    // Delete the container
+                    await container.DeleteIfExistsAsync();
+                    Console.WriteLine("\nContainer deleted.");
+
+                    // Turn off soft delete
+                    ServiceProperties serviceProperties = blobClient.GetServiceProperties();
+                    serviceProperties.DeleteRetentionPolicy.Enabled = false;
+                    blobClient.SetServiceProperties(serviceProperties);
+                }
+                catch (StorageException ex)
+                {
+                    Console.WriteLine("Error returned from the service: {0}", ex.Message);
+                    throw;
+                }
             }
         }
 
