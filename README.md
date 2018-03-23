@@ -1,7 +1,7 @@
 ---
 services: storage
 platforms: dotnet
-author: mihauss
+author: michaelhauss
 ---
 
 # Azure Storage Blob Soft Delete
