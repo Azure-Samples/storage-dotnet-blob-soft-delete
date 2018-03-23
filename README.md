@@ -1,3 +1,9 @@
+---
+services: storage
+platforms: dotnet
+author: mihauss
+---
+
 # Azure Storage Blob Soft Delete
 
 This project uploads, overwrites, snapshots, deletes, and restores a blob named “HelloWorld” when soft delete is turned on.
