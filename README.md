@@ -75,4 +75,4 @@ Copy a snapshot over the base blob:
 
 ## Resources
 
-- https://review.docs.microsoft.com/en-us/azure/storage/blobs/storage-blob-soft-delete
+- https://docs.microsoft.com/en-us/azure/storage/blobs/storage-blob-soft-delete
