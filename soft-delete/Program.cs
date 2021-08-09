@@ -146,7 +146,7 @@ namespace soft_delete
                 blobClientOptions.Retry.Mode = RetryMode.Exponential;
                 blobClientOptions.Retry.Delay = TimeSpan.FromSeconds(2);
                 blobClientOptions.Retry.MaxRetries = 10;
-                BlobServiceClient blobClient = new BlobServiceClient("connectionString");
+                BlobServiceClient blobClient = new BlobServiceClient("StorageConnectionString");
                 return blobClient;
             }
             catch (RequestFailedException ex)
