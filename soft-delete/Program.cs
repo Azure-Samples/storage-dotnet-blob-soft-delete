@@ -16,15 +16,12 @@
 
 namespace soft_delete
 {
-    using Microsoft.Azure;
-    using Microsoft.WindowsAzure.Storage;
-    using Microsoft.WindowsAzure.Storage.Shared.Protocol;
-    using Microsoft.WindowsAzure.Storage.Blob;
-    using Microsoft.WindowsAzure.Storage.RetryPolicies;
     using System;
     using System.Threading.Tasks;
-    using System.Collections.Generic;
-    using System.Linq;
+    using Azure.Storage.Blobs;
+    using Azure;
+    using Azure.Core;
+    using Azure.Storage.Blobs.Models;
 
     public class Program
     {
@@ -45,27 +42,27 @@ namespace soft_delete
         {
 
             // Retrieve a CloudBlobClient object and enable soft delete
-            CloudBlobClient blobClient = GetCloudBlobClient();
+            BlobServiceClient blobClient = GetCloudBlobClient();
             try
             {
-                ServiceProperties serviceProperties = blobClient.GetServiceProperties();
+                BlobServiceProperties serviceProperties = blobClient.GetProperties();
                 serviceProperties.DeleteRetentionPolicy.Enabled = true;
-                serviceProperties.DeleteRetentionPolicy.RetentionDays = RetentionDays;
-                blobClient.SetServiceProperties(serviceProperties);
+                serviceProperties.DeleteRetentionPolicy.Days = RetentionDays;
+                blobClient.SetProperties(serviceProperties);
             }
-            catch (StorageException ex)
+            catch (RequestFailedException ex)
             {
                 Console.WriteLine("Error returned from the service: {0}", ex.Message);
                 throw;
             }
 
             // Create a container
-            CloudBlobContainer container = blobClient.GetContainerReference("softdelete-" + System.Guid.NewGuid().ToString());
+            BlobContainerClient container = blobClient.GetBlobContainerClient("softdelete-" + System.Guid.NewGuid().ToString());
             try
             {
                 await container.CreateIfNotExistsAsync();
             }
-            catch (StorageException)
+            catch (RequestFailedException)
             {
                 Console.WriteLine("If you are using the storage emulator, please make sure you have started it. Press the Windows key and type Azure Storage to select and run it from the list of applications - then restart the sample.");
                 Console.ReadLine();
@@ -76,40 +73,36 @@ namespace soft_delete
             {
                 // Upload
                 Console.WriteLine("\nUpload:");
-                CloudBlockBlob blockBlob = container.GetBlockBlobReference("HelloWorld");
-                await blockBlob.UploadFromFileAsync(ImageToUpload);
-                PrintBlobsInContainer(container, BlobListingDetails.All);
+                BlobClient blockBlob = container.GetBlobClient("HelloWorld");
+                await blockBlob.UploadAsync(ImageToUpload, overwrite: true);
+                PrintBlobsInContainer(container, BlobTraits.All);
 
                 // Overwrite
                 Console.WriteLine("\nOverwrite:");
-                await blockBlob.UploadFromFileAsync(TextToUpload);
-                PrintBlobsInContainer(container, BlobListingDetails.All);
+                await blockBlob.UploadAsync(TextToUpload, overwrite: true);
+                PrintBlobsInContainer(container, BlobTraits.All);
 
                 // Snapshot
                 Console.WriteLine("\nSnapshot:");
-                await blockBlob.SnapshotAsync();
-                PrintBlobsInContainer(container, BlobListingDetails.All);
+                await blockBlob.CreateSnapshotAsync();
+                PrintBlobsInContainer(container, BlobTraits.All);
 
                 // Delete (including snapshots)
                 Console.WriteLine("\nDelete (including snapshots):");
                 blockBlob.Delete(DeleteSnapshotsOption.IncludeSnapshots);
-                PrintBlobsInContainer(container, BlobListingDetails.All);
+                PrintBlobsInContainer(container, BlobTraits.All);
 
                 // Undelete
                 Console.WriteLine("\nUndelete:");
                 await blockBlob.UndeleteAsync();
-                PrintBlobsInContainer(container, BlobListingDetails.All);
+                PrintBlobsInContainer(container, BlobTraits.All);
 
                 // Recover
                 Console.WriteLine("\nCopy the most recent snapshot over the base blob:");
-                IEnumerable<IListBlobItem> allBlobVersions = container.ListBlobs(
-                    prefix: blockBlob.Name, useFlatBlobListing: true, blobListingDetails: BlobListingDetails.Snapshots);
-                CloudBlockBlob copySource = allBlobVersions.First(version => ((CloudBlockBlob)version).IsSnapshot && 
-                    ((CloudBlockBlob)version).Name == blockBlob.Name) as CloudBlockBlob;
-                blockBlob.StartCopy(copySource);
-                PrintBlobsInContainer(container, BlobListingDetails.All);
+                blockBlob.StartCopyFromUri(blockBlob.Uri);
+                PrintBlobsInContainer(container, BlobTraits.All);
             }
-            catch (StorageException ex)
+            catch (RequestFailedException ex)
             {
                 Console.WriteLine("Error returned from the service: {0}", ex.Message);
                 throw;
@@ -130,11 +123,11 @@ namespace soft_delete
                     Console.WriteLine("\nContainer deleted.");
 
                     // Turn off soft delete
-                    ServiceProperties serviceProperties = blobClient.GetServiceProperties();
+                    BlobServiceProperties serviceProperties = blobClient.GetProperties();
                     serviceProperties.DeleteRetentionPolicy.Enabled = false;
-                    blobClient.SetServiceProperties(serviceProperties);
+                    blobClient.SetProperties(serviceProperties);
                 }
-                catch (StorageException ex)
+                catch (RequestFailedException ex)
                 {
                     Console.WriteLine("Error returned from the service: {0}", ex.Message);
                     throw;
@@ -145,28 +138,29 @@ namespace soft_delete
         // Helper method to retrieve retrieve the CloudBlobClient object in order to interact with the storage account.
         // The retry policy on the CloudBlobClient object is set to an Exponential retry policy with a back off of 2 seconds
         // and a max attempts of 10 times.
-        private static CloudBlobClient GetCloudBlobClient()
+        private static BlobServiceClient GetCloudBlobClient()
         {
             try
             {
-                CloudStorageAccount storageAccount = CloudStorageAccount.Parse(CloudConfigurationManager.GetSetting("StorageConnectionString"));
-                CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
-                IRetryPolicy exponentialRetryPolicy = new ExponentialRetry(TimeSpan.FromSeconds(2), 10);
-                blobClient.DefaultRequestOptions.RetryPolicy = exponentialRetryPolicy;
+                BlobClientOptions blobClientOptions = new BlobClientOptions();
+                blobClientOptions.Retry.Mode = RetryMode.Exponential;
+                blobClientOptions.Retry.Delay = TimeSpan.FromSeconds(2);
+                blobClientOptions.Retry.MaxRetries = 10;
+                BlobServiceClient blobClient = new BlobServiceClient("connectionString");
                 return blobClient;
             }
-            catch (StorageException ex)
+            catch (RequestFailedException ex)
             {
                 Console.WriteLine("Error returned from the service: {0}", ex.Message);
                 throw;
             }
         }
 
-        static void PrintBlobsInContainer(CloudBlobContainer container, BlobListingDetails blobListingDetails)
+        static void PrintBlobsInContainer(BlobContainerClient container, BlobTraits blobListingDetails)
         {
-            foreach (CloudBlockBlob blob in container.ListBlobs(useFlatBlobListing: true, blobListingDetails: blobListingDetails))
+            foreach (BlobHierarchyItem blob in container.GetBlobsByHierarchy(blobListingDetails, BlobStates.All))
             {
-                Console.WriteLine("- {0} (is soft deleted: {1}, is snapshot: {2})", blob.Name, blob.IsDeleted, blob.IsSnapshot);
+                Console.WriteLine("- {0} (is soft deleted: {1}, is snapshot: {2})", blob.Blob.Name, blob.Blob.Deleted, String.IsNullOrEmpty(blob.Blob.Snapshot) ? false : true);
             }
         }
     }
