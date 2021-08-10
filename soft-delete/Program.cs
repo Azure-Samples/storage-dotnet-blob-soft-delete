@@ -16,12 +16,12 @@
 
 namespace soft_delete
 {
-    using System;
-    using System.Threading.Tasks;
-    using Azure.Storage.Blobs;
     using Azure;
     using Azure.Core;
+    using Azure.Storage.Blobs;
     using Azure.Storage.Blobs.Models;
+    using System;
+    using System.Threading.Tasks;
 
     public class Program
     {
@@ -146,7 +146,7 @@ namespace soft_delete
                 blobClientOptions.Retry.Mode = RetryMode.Exponential;
                 blobClientOptions.Retry.Delay = TimeSpan.FromSeconds(2);
                 blobClientOptions.Retry.MaxRetries = 10;
-                BlobServiceClient blobClient = new BlobServiceClient("StorageConnectionString");
+                BlobServiceClient blobClient = new BlobServiceClient("StorageConnectionString", blobClientOptions);
                 return blobClient;
             }
             catch (RequestFailedException ex)
