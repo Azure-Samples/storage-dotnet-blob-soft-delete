@@ -141,8 +141,7 @@ namespace soft_delete
             try
             {
                 BlobClientOptions blobClientOptions = new BlobClientOptions();
-
-                BlobServiceClient blobClient = new BlobServiceClient("DefaultEndpointsProtocol=https;AccountName=kaiistorage;AccountKey=oXBj0QL4TbcfMMZ2xU11eHuDH0In3l+JB3REnhYP5kAx3PxcrMn9sauzhYcVptiR0DEFq6NEFDFeQb2w6oKzMQ==;EndpointSuffix=core.windows.net", blobClientOptions);
+                BlobServiceClient blobClient = new BlobServiceClient("StorageConnectionString", blobClientOptions);
                 return blobClient;
             }
             catch (RequestFailedException ex)
