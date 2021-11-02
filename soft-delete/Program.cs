@@ -13,11 +13,9 @@
 // organization, product, domain name, email address, logo, person,
 // places, or events is intended or should be inferred.
 //----------------------------------------------------------------------------------
-
 namespace soft_delete
 {
     using Azure;
-    using Azure.Core;
     using Azure.Storage.Blobs;
     using Azure.Storage.Blobs.Models;
     using System;
@@ -143,9 +141,8 @@ namespace soft_delete
             try
             {
                 BlobClientOptions blobClientOptions = new BlobClientOptions();
-                blobClientOptions.Retry.Delay = TimeSpan.FromSeconds(1);
-                blobClientOptions.Retry.MaxRetries = 1;
-                BlobServiceClient blobClient = new BlobServiceClient("StorageConnectionString", blobClientOptions);
+
+                BlobServiceClient blobClient = new BlobServiceClient("DefaultEndpointsProtocol=https;AccountName=kaiistorage;AccountKey=oXBj0QL4TbcfMMZ2xU11eHuDH0In3l+JB3REnhYP5kAx3PxcrMn9sauzhYcVptiR0DEFq6NEFDFeQb2w6oKzMQ==;EndpointSuffix=core.windows.net", blobClientOptions);
                 return blobClient;
             }
             catch (RequestFailedException ex)
